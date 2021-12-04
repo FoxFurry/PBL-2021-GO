@@ -1,0 +1,7 @@
+server:
+  host: ""
+  port: "8080"
+
+db:
+  name: "db.db"
+  path: "internal/db/"

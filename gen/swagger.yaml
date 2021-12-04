@@ -1,0 +1,257 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  Message:
+    properties:
+      Data:
+        type: string
+      ID:
+        format: uint64
+        type: integer
+      RoomID:
+        format: uint64
+        type: integer
+      SenderID:
+        format: uint64
+        type: integer
+    type: object
+    x-go-package: foxy/internal/domain/entity
+  MessageCreate:
+    properties:
+      data:
+        type: string
+        x-go-name: Data
+      room_id:
+        format: uint64
+        type: integer
+        x-go-name: RoomID
+    type: object
+    x-go-package: foxy/internal/domain/dto
+  Room:
+    properties:
+      ID:
+        format: uint64
+        type: integer
+      Name:
+        type: string
+    type: object
+    x-go-package: foxy/internal/domain/entity
+  RoomCreate:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: foxy/internal/domain/dto
+  UserRegister:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      full_name:
+        type: string
+        x-go-name: FullName
+      password:
+        type: string
+        x-go-name: Password
+    type: object
+    x-go-package: foxy/internal/domain/dto
+host: localhost
+info:
+  description: Documentation of Foxy Messenger API.
+  title: Foxy
+  version: 1.0.0
+paths:
+  /message/{roomID}:
+    get:
+      description: Get all message from specific room
+      operationId: getMessageRequestWrapper
+      responses:
+        "200":
+          $ref: '#/responses/getMessageSuccessResponseWrapper'
+      tags:
+      - Message
+  /message/create/{userID}:
+    post:
+      description: Create a message by a specific user
+      operationId: createMessageRequestWrapper
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/MessageCreate'
+      responses:
+        "200":
+          $ref: '#/responses/createMessageSuccessResponseWrapper'
+      tags:
+      - Message
+  /room/{userID}:
+    get:
+      description: Get all rooms for a specific user
+      operationId: getRoomsRequestWrapper
+      responses:
+        "200":
+          $ref: '#/responses/getRoomsSuccessResponseWrapper'
+      tags:
+      - Room
+  /room/create/{userID}:
+    post:
+      description: |-
+        Create a room by a specific user
+        User specified in URL will be admin of new room
+      operationId: createRoomsRequestWrapper
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/RoomCreate'
+      responses:
+        "200":
+          $ref: '#/responses/createRoomsSuccessResponseWrapper'
+      tags:
+      - Room
+  /user/login:
+    post:
+      description: User authentication endpoint
+      operationId: loginUser
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          properties:
+            email:
+              type: string
+              x-go-name: Email
+            password:
+              type: string
+              x-go-name: Password
+          type: object
+      responses:
+        "200":
+          $ref: '#/responses/userLoginSuccessResponseWrapper'
+        "401":
+          $ref: '#/responses/userLoginWrongCredentialsWrapper'
+      tags:
+      - User
+  /user/register:
+    post:
+      description: Registers a new user in database
+      operationId: registerUser
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserRegister'
+      responses:
+        "200":
+          $ref: '#/responses/userRegisterSuccessResponseWrapper'
+        "409":
+          $ref: '#/responses/userRegisterAlreadyExistsWrapper'
+      tags:
+      - User
+produces:
+- application/json
+responses:
+  createMessageSuccessResponseWrapper:
+    description: Response contains ID of newly created message
+    schema:
+      properties:
+        data:
+          properties:
+            id:
+              format: int64
+              type: integer
+              x-go-name: ID
+          type: object
+          x-go-name: Data
+      type: object
+  createRoomsSuccessResponseWrapper:
+    description: Response body contains an array of room objects
+    schema:
+      properties:
+        data:
+          properties:
+            id:
+              format: int64
+              type: integer
+              x-go-name: ID
+          type: object
+          x-go-name: Data
+      type: object
+  getMessageSuccessResponseWrapper:
+    description: Response contains array of messages from specific room
+    schema:
+      properties:
+        data:
+          items:
+            $ref: '#/definitions/Message'
+          type: array
+          x-go-name: Data
+      type: object
+  getRoomsSuccessResponseWrapper:
+    description: Response body contains an array of room objects
+    schema:
+      properties:
+        data:
+          items:
+            $ref: '#/definitions/Room'
+          type: array
+          x-go-name: Data
+      type: object
+  userLoginSuccessResponseWrapper:
+    description: 'Response body contains single integer: ID of authenticated user'
+    schema:
+      properties:
+        data:
+          properties:
+            id:
+              format: int64
+              type: integer
+              x-go-name: ID
+          type: object
+          x-go-name: Data
+      type: object
+  userLoginWrongCredentialsWrapper:
+    description: If credentials are wrong, this response will be sent
+    schema:
+      properties:
+        error:
+          properties:
+            message:
+              type: string
+              x-go-name: Message
+          type: object
+          x-go-name: Error
+      type: object
+  userRegisterAlreadyExistsWrapper:
+    description: If user already exists, this response will be sent
+    schema:
+      properties:
+        error:
+          properties:
+            message:
+              type: string
+              x-go-name: Message
+          type: object
+          x-go-name: Error
+      type: object
+  userRegisterSuccessResponseWrapper:
+    description: 'Response body contains single integer: ID of newly created user'
+    schema:
+      properties:
+        data:
+          properties:
+            id:
+              format: int64
+              type: integer
+              x-go-name: ID
+          type: object
+          x-go-name: Data
+      type: object
+schemes:
+- http
+securityDefinitions:
+  basic:
+    type: basic
+swagger: "2.0"
