@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"log"
+	"time"
+
 	"foxy/internal/db"
 	"foxy/internal/domain/entity"
-	"log"
 )
 
 type IMessage interface {
@@ -19,14 +21,14 @@ func NewMessageRepository() IMessage {
 }
 
 func (r *messageRepository) SendMessage(userID uint, roomID uint, data string) (uint, error) {
-	stmt, err := db.GetDB().Prepare(`INSERT INTO message(sender_id, room_id, data) values(?,?,?) RETURNING id`)
+	stmt, err := db.GetDB().Prepare(`INSERT INTO message(sender_id, room_id, data, time) values(?,?,?,?) RETURNING id`)
 
 	if err != nil {
 		return 0, err
 	}
 
 	var newMessageID uint
-	err = stmt.QueryRow(userID, roomID, data).Scan(&newMessageID)
+	err = stmt.QueryRow(userID, roomID, data, time.Now().Unix()).Scan(&newMessageID)
 	if err != nil {
 		return 0, err
 	}
@@ -51,7 +53,7 @@ func (r *messageRepository) GetAllMessages(roomID uint) ([]entity.Message, error
 	for rows.Next() {
 		var tempMessage entity.Message
 
-		err = rows.Scan(&tempMessage.ID, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data)
+		err = rows.Scan(&tempMessage.ID, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data, &tempMessage.Time)
 
 		if err != nil {
 			log.Printf("Unable to scan the message: %v", err)
@@ -81,7 +83,7 @@ func (r *messageRepository) GetAllMessagesByUser(userID, roomID uint) ([]entity.
 	for rows.Next() {
 		var tempMessage entity.Message
 
-		err = rows.Scan(&tempMessage.ID, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data)
+		err = rows.Scan(&tempMessage.ID, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data, &tempMessage.Time)
 
 		if err != nil {
 			log.Printf("Unable to scan the message: %v", err)

@@ -5,4 +5,5 @@ type Message struct {
 	SenderID uint
 	RoomID   uint
 	Data     string
+	Time     int
 }

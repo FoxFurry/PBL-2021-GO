@@ -2,10 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"sync"
+
+	"github.com/spf13/viper"
 )
 
 var (
@@ -92,6 +93,7 @@ func createMessageTable(db *sql.DB) {
 		"sender_id"	INTEGER,
 		"room_id" INTEGER,
 		"data" TEXT,
+		"time" INT,
 		PRIMARY KEY("id" AUTOINCREMENT)
 	)`
 
