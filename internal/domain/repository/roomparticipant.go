@@ -1,17 +1,18 @@
 package repository
 
 import (
+	"log"
+
 	"foxy/internal/db"
 	"foxy/internal/domain/entity"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 )
 
 type IRoomParticipant interface {
 	GetUsersRooms(userID uint) ([]entity.Room, error)
 	CreateRoom(userID uint, newRoom entity.Room) (uint, error)
 	GetRoomParticipants(roomID uint) ([]entity.RoomParticipant, error)
-	AddParticipantToRoom(userID, roomID uint) error
+	AddParticipantToRoom(userID, roomID uint) (uint, error)
 	DeleteParticipantFromRoom(userID, roomID uint) error
 }
 
@@ -83,7 +84,7 @@ func (r *roomParticipantRepository) GetUsersRooms(userID uint) ([]entity.Room, e
 }
 
 func (r *roomParticipantRepository) GetRoomParticipants(roomID uint) ([]entity.RoomParticipant, error) {
-	stmt, err := db.GetDB().Prepare(`SELECT * FROM room_participant WHERE room_id=$1`)
+	stmt, err := db.GetDB().Prepare(`SELECT user.full_name, room_participant.user_id, room_participant.room_id, room_participant.role FROM room_participant INNER JOIN user ON user.id = user_id WHERE room_id=$1`)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func (r *roomParticipantRepository) GetRoomParticipants(roomID uint) ([]entity.R
 	for rows.Next() {
 		var tempRoom entity.RoomParticipant
 
-		err = rows.Scan(&tempRoom.ID, &tempRoom.UserID, &tempRoom.RoomID, &tempRoom.UserRole)
+		err = rows.Scan(&tempRoom.Name, &tempRoom.UserID, &tempRoom.RoomID, &tempRoom.UserRole)
 
 		if err != nil {
 			log.Printf("Unable to scan the room: %v", err)
@@ -112,8 +113,19 @@ func (r *roomParticipantRepository) GetRoomParticipants(roomID uint) ([]entity.R
 	return rooms, nil
 }
 
-func (r *roomParticipantRepository) AddParticipantToRoom(userID, roomID uint) error {
-	return nil
+func (r *roomParticipantRepository) AddParticipantToRoom(userID, roomID uint) (uint, error) {
+	stmt, err := db.GetDB().Prepare(`INSERT INTO room_participant(user_id, room_id, role) values(?,?,?) RETURNING id`)
+	if err != nil {
+		return 0, err
+	}
+
+	var newUserID uint
+	err = stmt.QueryRow(userID, roomID, entity.Regular).Scan(&newUserID)
+	if err != nil {
+		return 0, err
+	}
+
+	return newUserID, nil
 }
 
 func (r *roomParticipantRepository) DeleteParticipantFromRoom(userID, roomID uint) error {

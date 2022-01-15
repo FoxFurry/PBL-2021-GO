@@ -9,8 +9,9 @@ const (
 )
 
 type RoomParticipant struct {
-	ID       uint `json:"id"`
-	UserID   uint `json:"user_id"`
-	RoomID   uint `json:"room_id"`
-	UserRole Role `json:"user_role"`
+	ID       uint   `json:"-"`
+	Name     string `json:"name"`
+	UserID   uint   `json:"user_id"`
+	RoomID   uint   `json:"room_id"`
+	UserRole Role   `json:"user_role"`
 }

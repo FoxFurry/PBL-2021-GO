@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"log"
+	"strconv"
+
 	"foxy/internal/domain/dto"
 	"foxy/internal/domain/entity"
 	"foxy/internal/http/httperr"
@@ -8,8 +11,6 @@ import (
 	"foxy/internal/http/middleware"
 	"foxy/internal/service"
 	"github.com/gin-gonic/gin"
-	"log"
-	"strconv"
 )
 
 type IController interface {
@@ -37,6 +38,7 @@ func (c *foxyController) GetRouter() *gin.Engine {
 
 	router.GET("/room/:userID", c.getUserRooms)
 	router.POST("/room/create/:userID", c.createRoom)
+	router.POST("/room/add/:userID", c.addParticipant)
 
 	router.POST("/message/create/:userID", c.sendMessage)
 	router.GET("/message/:roomID", c.getAllMessages)
@@ -218,9 +220,29 @@ func (c *foxyController) getAllMessages(ctx *gin.Context) {
 	userRooms, err := c.foxyService.GetAllMessages(uint(id))
 
 	if err != nil {
-		httperr.Handle(ctx, err)
+		httpresponse.RespondInternalError(ctx, err)
 		return
 	}
 
 	httpresponse.RespondOK(ctx, userRooms)
+}
+
+func (c *foxyController) addParticipant(ctx *gin.Context) {
+	var addParticipantRequest dto.AddParticipant
+
+	err := ctx.ShouldBindJSON(&addParticipantRequest)
+	if err != nil {
+		httperr.Handle(ctx, err)
+		return
+	}
+
+	log.Printf("Addint user %s to room %d", addParticipantRequest.ParticipantEmail, addParticipantRequest.RoomID)
+
+	newParticipantID, err := c.foxyService.AddParticipant(addParticipantRequest.ParticipantEmail, addParticipantRequest.RoomID)
+	if err != nil {
+		httperr.Handle(ctx, err)
+		return
+	}
+
+	httpresponse.RespondOK(ctx, newParticipantID)
 }

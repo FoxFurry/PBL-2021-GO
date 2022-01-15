@@ -37,7 +37,7 @@ func (r *messageRepository) SendMessage(userID uint, roomID uint, data string) (
 }
 
 func (r *messageRepository) GetAllMessages(roomID uint) ([]entity.Message, error) {
-	stmt, err := db.GetDB().Prepare(`SELECT *FROM message WHERE room_id=$1`)
+	stmt, err := db.GetDB().Prepare(`SELECT user.full_name, message.sender_id, message.room_id, message.data, message.time FROM message INNER JOIN user ON user.id = sender_id WHERE room_id=$1`)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +53,7 @@ func (r *messageRepository) GetAllMessages(roomID uint) ([]entity.Message, error
 	for rows.Next() {
 		var tempMessage entity.Message
 
-		err = rows.Scan(&tempMessage.ID, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data, &tempMessage.Time)
-
+		err = rows.Scan(&tempMessage.SenderName, &tempMessage.SenderID, &tempMessage.RoomID, &tempMessage.Data, &tempMessage.Time)
 		if err != nil {
 			log.Printf("Unable to scan the message: %v", err)
 			continue

@@ -15,6 +15,7 @@ type IService interface {
 
 	GetUsersRooms(userID uint) ([]entity.Room, error)
 	CreateRoom(userID uint, newRoom entity.Room) (uint, error)
+	AddParticipant(userMail string, roomID uint) (uint, error)
 
 	Authorize(user dto.UserRegister) (uint, error)
 
@@ -145,4 +146,18 @@ func (s *foxyService) GetAllMessagesByUser(roomID uint, userID uint) ([]entity.M
 	}
 
 	return messages, nil
+}
+
+func (s *foxyService) AddParticipant(userMail string, roomID uint) (uint, error) {
+	newParticipant, err := s.userRepo.GetUserByMail(userMail)
+	if err != nil {
+		return 0, httperr.NewErrorNotFound()
+	}
+
+	NewRoomParticipantID, err := s.roomParticipantRepo.AddParticipantToRoom(newParticipant.ID, roomID)
+	if err != nil {
+		return 0, err
+	}
+
+	return NewRoomParticipantID, nil
 }
