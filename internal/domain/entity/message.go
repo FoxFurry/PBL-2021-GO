@@ -1,9 +1,9 @@
 package entity
 
 type Message struct {
-	ID       uint
-	SenderID uint
-	RoomID   uint
-	Data     string
-	Time     int
+	ID       uint   `json:"id"`
+	SenderID uint   `json:"sender_id"`
+	RoomID   uint   `json:"room_id"`
+	Data     string `json:"data"`
+	Time     int    `json:"time"`
 }
