@@ -154,6 +154,17 @@ func (s *foxyService) AddParticipant(userMail string, roomID uint) (uint, error)
 		return 0, httperr.NewErrorNotFound()
 	}
 
+	currentRooms, err := s.roomParticipantRepo.GetUsersRooms(newParticipant.ID)
+	if err != nil {
+		return 0, httperr.NewErrorAlreadyExists()
+	}
+
+	for _, room := range currentRooms {
+		if room.ID == roomID {
+			return 0, httperr.NewErrorAlreadyExists()
+		}
+	}
+
 	NewRoomParticipantID, err := s.roomParticipantRepo.AddParticipantToRoom(newParticipant.ID, roomID)
 	if err != nil {
 		return 0, err
