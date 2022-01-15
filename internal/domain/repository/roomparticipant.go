@@ -50,7 +50,7 @@ func (r *roomParticipantRepository) CreateRoom(userID uint, newRoom entity.Room)
 		return 0, err
 	}
 
-	return newRoomParticipant.ID, nil
+	return newRoomParticipant.RoomID, nil
 }
 
 func (r *roomParticipantRepository) GetUsersRooms(userID uint) ([]entity.Room, error) {
