@@ -55,7 +55,7 @@ func createUserTable(db *sql.DB) {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("Could not create user table")
+		log.Fatalf("Could not create user table: %v", err)
 	}
 }
 
@@ -70,7 +70,7 @@ func createRoomParticipantTable(db *sql.DB) {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("Could not create user table")
+		log.Fatalf("Could not create room participant table: %v", err)
 	}
 }
 
@@ -83,7 +83,7 @@ func createRoomTable(db *sql.DB) {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("Could not create user table")
+		log.Fatalf("Could not create room table: %v", err)
 	}
 }
 
@@ -99,6 +99,6 @@ func createMessageTable(db *sql.DB) {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("Could not create message table")
+		log.Fatalf("Could not create message table: %v", err)
 	}
 }
