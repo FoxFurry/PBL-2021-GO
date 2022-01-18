@@ -34,15 +34,15 @@ func (c *foxyController) GetRouter() *gin.Engine {
 
 	router.POST("/user/register", c.createUser)
 	router.POST("/user/login", c.loginUser)
-	router.GET("/user/:userID", c.getUser, middleware.TokenAuthMiddleware())
-	router.GET("/users", c.getUsers, middleware.TokenAuthMiddleware())
+	router.GET("/user/:userID", middleware.TokenAuthMiddleware(), c.getUser)
+	router.GET("/users", middleware.TokenAuthMiddleware(), c.getUsers)
 
-	router.GET("/room/:userID", c.getUserRooms, middleware.TokenAuthMiddleware())
-	router.POST("/room/create/:userID", c.createRoom, middleware.TokenAuthMiddleware())
-	router.POST("/room/add/:userID", c.addParticipant, middleware.TokenAuthMiddleware())
+	router.GET("/room/:userID", middleware.TokenAuthMiddleware(), c.getUserRooms)
+	router.POST("/room/create/:userID", middleware.TokenAuthMiddleware(), c.createRoom)
+	router.POST("/room/add/:userID", middleware.TokenAuthMiddleware(), c.addParticipant)
 
-	router.POST("/message/create/:userID", c.sendMessage, middleware.TokenAuthMiddleware())
-	router.GET("/message/:roomID", c.getAllMessages, middleware.TokenAuthMiddleware())
+	router.POST("/message/create/:userID", middleware.TokenAuthMiddleware(), c.sendMessage)
+	router.GET("/message/:roomID", middleware.TokenAuthMiddleware(), c.getAllMessages)
 
 	return router
 }
