@@ -30,19 +30,18 @@ func NewFoxyController() IController {
 
 func (c *foxyController) GetRouter() *gin.Engine {
 	router := gin.New()
-	router.Use(middleware.CORSMiddleware())
 
-	router.POST("/user/register", c.createUser)
-	router.POST("/user/login", c.loginUser)
-	router.GET("/user/:userID", middleware.TokenAuthMiddleware(), c.getUser)
-	router.GET("/users", middleware.TokenAuthMiddleware(), c.getUsers)
+	router.POST("/user/register", middleware.CORSMiddleware(), c.createUser)
+	router.POST("/user/login", middleware.CORSMiddleware(), c.loginUser)
+	router.GET("/user/:userID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.getUser)
+	router.GET("/users", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.getUsers)
 
-	router.GET("/room/:userID", middleware.TokenAuthMiddleware(), c.getUserRooms)
-	router.POST("/room/create/:userID", middleware.TokenAuthMiddleware(), c.createRoom)
-	router.POST("/room/add/:userID", middleware.TokenAuthMiddleware(), c.addParticipant)
+	router.GET("/room/:userID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.getUserRooms)
+	router.POST("/room/create/:userID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.createRoom)
+	router.POST("/room/add/:userID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.addParticipant)
 
-	router.POST("/message/create/:userID", middleware.TokenAuthMiddleware(), c.sendMessage)
-	router.GET("/message/:roomID", middleware.TokenAuthMiddleware(), c.getAllMessages)
+	router.POST("/message/create/:userID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.sendMessage)
+	router.GET("/message/:roomID", middleware.CORSMiddleware(), middleware.TokenAuthMiddleware(), c.getAllMessages)
 
 	return router
 }
