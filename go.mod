@@ -3,6 +3,7 @@ module foxy
 go 1.17
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/mattn/go-sqlite3 v1.14.9
 	github.com/pdrum/swagger-automation v0.0.0-20190629163613-c8c7c80ba858

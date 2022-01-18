@@ -9,6 +9,7 @@ import (
 	"foxy/internal/http/httperr"
 	"foxy/internal/http/httpresponse"
 	"foxy/internal/http/middleware"
+	"foxy/internal/infrastructure/jwtu"
 	"foxy/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -33,15 +34,15 @@ func (c *foxyController) GetRouter() *gin.Engine {
 
 	router.POST("/user/register", c.createUser)
 	router.POST("/user/login", c.loginUser)
-	router.GET("/user/:userID", c.getUser)
-	router.GET("/users", c.getUsers)
+	router.GET("/user/:userID", middleware.TokenAuthMiddleware(), c.getUser)
+	router.GET("/users", middleware.TokenAuthMiddleware(), c.getUsers)
 
-	router.GET("/room/:userID", c.getUserRooms)
-	router.POST("/room/create/:userID", c.createRoom)
-	router.POST("/room/add/:userID", c.addParticipant)
+	router.GET("/room/:userID", middleware.TokenAuthMiddleware(), c.getUserRooms)
+	router.POST("/room/create/:userID", middleware.TokenAuthMiddleware(), c.createRoom)
+	router.POST("/room/add/:userID", middleware.TokenAuthMiddleware(), c.addParticipant)
 
-	router.POST("/message/create/:userID", c.sendMessage)
-	router.GET("/message/:roomID", c.getAllMessages)
+	router.POST("/message/create/:userID", middleware.TokenAuthMiddleware(), c.sendMessage)
+	router.GET("/message/:roomID", middleware.TokenAuthMiddleware(), c.getAllMessages)
 
 	return router
 }
@@ -63,8 +64,15 @@ func (c *foxyController) createUser(ctx *gin.Context) {
 		return
 	}
 
+	token, _ := jwtu.CreateToken(newID)
+	if err != nil {
+		httperr.Handle(ctx, err)
+		return
+	}
+
 	httpresponse.RespondOK(ctx, gin.H{
-		"id": newID,
+		"id":    newID,
+		"token": token,
 	})
 }
 
@@ -86,8 +94,15 @@ func (c *foxyController) loginUser(ctx *gin.Context) {
 		return
 	}
 
+	token, _ := jwtu.CreateToken(userID)
+	if err != nil {
+		httperr.Handle(ctx, err)
+		return
+	}
+
 	httpresponse.RespondOK(ctx, gin.H{
-		"id": userID,
+		"id":    userID,
+		"token": token,
 	})
 }
 
